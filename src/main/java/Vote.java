@@ -1,13 +1,9 @@
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-
+import java.util.*;
 
 public class Vote {
 
-    private Map<String, Integer> voteResult = new HashMap<>();
+    private Set<Car> voteResult = new HashSet<>();
     private Scanner scanner = new Scanner(System.in);
     private Message message = new Message();
     private ValidationData validationData = new ValidationData();
@@ -25,15 +21,15 @@ public class Vote {
             inputCarInfo(i);
         }
         System.out.print(message.VOTE_CREATED);
-        voteResult.keySet().forEach(s -> System.out.print(s + "; "));
+        voteResult.forEach(s -> System.out.print(s + "; "));
         System.out.println("\n" + message.EXIT);
         makingChoice();
         stopVote();
     }
 
-    private void inputCarInfo(int i) {
+    private void inputCarInfo(int carNumber) {
         while (true) {
-            System.out.print(message.inputCarInfo(i));
+            System.out.print(message.inputCarInfo(carNumber));
             String carInfo = new Scanner(System.in).nextLine();
             if (!validationData.validateNameLength(carInfo)) {
                 System.out.println(message.INCORRECT_INPUT_LENGTH);
@@ -49,7 +45,8 @@ public class Vote {
                 System.out.println(message.INCORRECT_CAR_MODEL);
                 continue;
             }
-            voteResult.put(carInfo, 0);
+            Car car = new Car(carInfo, 0);
+            voteResult.add(car);
             break;
         }
     }
@@ -70,21 +67,25 @@ public class Vote {
             if (choice.equals("0")) {
                 break;
             }
-            if (voteResult.containsKey(choice)) {
-                int voteCount = voteResult.get(choice);
-                voteResult.put(choice, voteCount + 1);
+            if (findCarByName(choice).isPresent()) {
+                Car car = findCarByName(choice).get();
+                car.setRating(car.getRating() + 1);
                 System.out.println(message.ACCEPTED_VOTE);
             } else {
                 System.out.println(message.INCORRECT_CAR_BRAND);
-                voteResult.keySet().forEach(s -> System.out.print(s + "; "));
+                voteResult.forEach(s -> System.out.print(s + "; "));
             }
         }
     }
 
     private void stopVote() {
-        String car = Collections.max(voteResult.entrySet(), Map.Entry.comparingByValue()).getKey();
-        int voteCount = voteResult.get(car);
+        Car car = Collections.max(voteResult, Comparator.comparing(Car::getRating));
+        int voteCount = car.getRating();
         System.out.println("\n" + message.getVoteResult(car, voteCount));
+    }
+
+    private Optional<Car> findCarByName(String name) {
+        return voteResult.stream().filter(c -> c.getName().equals(name)).findAny();
     }
 
 }

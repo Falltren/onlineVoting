@@ -21,7 +21,7 @@ public class Message {
 
     public final String REENTER = "Повторите ввод: ";
 
-    public String getVoteResult(String car, int voteCount) {
+    public String getVoteResult(Car car, int voteCount) {
         return "Голосование завершено!" + "\n"
                 + "Лучший автомобиль года " + car + "\n"
                 + "Количество голосов: " + voteCount;
